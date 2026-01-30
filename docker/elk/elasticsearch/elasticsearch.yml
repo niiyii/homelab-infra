@@ -1,0 +1,12 @@
+cluster.name: "homelab-cluster"
+network.host: 0.0.0.0
+
+# Security settings
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: false
+
+# Memory settings
+indices.memory.index_buffer_size: 20%
+
+# Index settings
+action.auto_create_index: .monitoring*,.watches,.triggered_watches,.watcher-history*,.ml*,filebeat-*,metricbeat-*,logs-*

@@ -1,0 +1,60 @@
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: true
+  reload.period: 10s
+
+metricbeat.modules:
+  # System metrics
+  - module: system
+    period: 30s
+    metricsets:
+      - cpu
+      - load
+      - memory
+      - network
+      - process
+      - process_summary
+      - socket_summary
+      - filesystem
+      - fsstat
+      - uptime
+    process.include_top_n:
+      by_cpu: 10
+      by_memory: 10
+
+  # Docker metrics
+  - module: docker
+    period: 30s
+    hosts: ["unix:///var/run/docker.sock"]
+    metricsets:
+      - container
+      - cpu
+      - diskio
+      - healthcheck
+      - info
+      - memory
+      - network
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+
+# Output to Logstash on ELK server (via Tailscale)
+output.logstash:
+  hosts: ["${ELK_TAILSCALE_IP}:5044"]
+  ssl.enabled: false
+
+# Monitoring
+monitoring:
+  enabled: true
+  cluster_uuid: homelab-cluster
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/metricbeat
+  name: metricbeat
+  keepfiles: 7
+  permissions: 0640
